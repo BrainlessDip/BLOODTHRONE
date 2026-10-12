@@ -26,6 +26,13 @@ export function IronThrone() {
 
         <p className="prose-throne text-center">{site.ironThrone.support}</p>
 
+        <p
+          className="label-herald text-center"
+          style={{ color: "var(--color-blood-300)" }}
+        >
+          {site.identity.availability} · {site.identity.responseTime}
+        </p>
+
         {empty ? (
           <LedgerNote
             flavour={site.ledger.throneEmpty.flavour}

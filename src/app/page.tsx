@@ -4,6 +4,7 @@ import { Armory } from "@/components/sections/Armory";
 import { GreatHall } from "@/components/sections/GreatHall";
 import { Hero } from "@/components/sections/Hero";
 import { IronThrone } from "@/components/sections/IronThrone";
+import { KingsRecords } from "@/components/sections/KingsRecords";
 import { RavenArchive } from "@/components/sections/RavenArchive";
 import { WarTable } from "@/components/sections/WarTable";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <Armory />
         <WarTable />
         <RavenArchive />
+        <KingsRecords />
         <IronThrone />
       </main>
     </OpeningSequence>

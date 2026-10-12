@@ -79,9 +79,10 @@ export function GreatHall() {
 
           <dl className="flex flex-col justify-center gap-px self-start lg:self-auto">
             {[
-              ["Wielded", "Python, JavaScript"],
-              ["Forged in", "React, Node.js"],
-              ["Held at", "FastAPI, SQL"],
+              ["Realm", site.identity.location],
+              ["Timezone", site.identity.timezone],
+              ["Tongue", site.identity.languages],
+              ["Role", site.identity.role],
             ].map(([term, detail]) => (
               <div
                 key={term}
@@ -100,6 +101,26 @@ export function GreatHall() {
               </div>
             ))}
           </dl>
+        </div>
+
+        <div className="flex w-full flex-col items-center gap-6 border-t pt-10" style={{ borderColor: "var(--color-steel-850)" }}>
+          <h3 className="label-herald" style={{ color: "var(--color-blood-300)" }}>
+            CURRENTLY EXPLORING
+          </h3>
+          <ul className="flex flex-wrap justify-center gap-2">
+            {site.focus.map((item) => (
+              <li
+                key={item}
+                className="label-herald border px-3 py-2"
+                style={{
+                  borderColor: "var(--color-steel-800)",
+                  color: "var(--color-steel-300)",
+                }}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

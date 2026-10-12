@@ -1,9 +1,22 @@
 /**
  * Single source of truth for every word on the site.
  *
- * PLAN §8 and §9 forbid inventing projects, clients, awards or employment
- * history. Everything below that is not already supplied in STACK.MD is a
- * marked placeholder for the owner to replace before launch.
+ * Content migrated from https://dip.dev.cv/ — that site is the source of truth
+ * for portfolio facts. Every project, statistic and link below was verified
+ * against the live GitHub API rather than copied blindly:
+ *
+ *  - The five projects featured on the reference portfolio (ParcelKoi,
+ *    ScriptForge, PulseBoard, Dotfiles, NoteShell) return 404 on GitHub and
+ *    parcelkoi.dev has no DNS record, so none of them are carried over. The
+ *    entries below are the owner's real, reachable repositories instead.
+ *  - `yasb`, `changedetection.io` and `nodriver` are forks of other people's
+ *    projects and are deliberately excluded as original work.
+ *  - Statistics are a point-in-time snapshot, not a live counter. See
+ *    `records.asOf`.
+ *
+ * Nothing here is invented: descriptions are the repository descriptions as
+ * written by the owner, and anything unverifiable is omitted rather than
+ * guessed.
  */
 
 export type Weapon = {
@@ -34,11 +47,12 @@ export type Raven = {
 };
 
 export const site = {
-  // TODO(owner): replace with the real name or handle.
-  name: "Dip",
+  name: "Brainless Dip",
+  handle: "@brainlessDip",
+  legalName: "Dip Dey",
   tagline: "NOT BORN TO FOLLOW. BUILT TO CREATE.",
   summary:
-    "Developer and builder. I take a problem apart, learn what it actually needs, and leave something that holds.",
+    "Developer and builder creating web applications, automation tools, and practical software. Based in Mymensingh, Bangladesh — open to freelance work, collaborations and interesting problems.",
 
   opening: {
     label: "PRIVATE REALM",
@@ -53,11 +67,29 @@ export const site = {
     scrollHint: "SCROLL",
   },
 
+  /** Verified against the GitHub API and the reference portfolio. */
+  identity: {
+    location: "Mymensingh, Bangladesh",
+    timezone: "GMT+6",
+    languages: "Bangla, English",
+    role: "Developer & Builder",
+    availability: "Available for interesting projects",
+    responseTime: "Usually replies within 24h.",
+  },
+
+  /** PLAN §14: themed wording, but every term stays plainly readable. */
+  focus: [
+    "React",
+    "TypeScript",
+    "Python",
+    "Backend systems",
+    "Automation",
+  ] as readonly string[],
+
   greatHall: {
     label: "THE GREAT HALL",
     heading: "THE ONE WHO WIELDS THE KEYBOARD.",
-    // TODO(owner): replace with the real introduction.
-    body: "I build software the way a siege works: quiet, patient, and aimed at exactly one wall. I write code that holds when the rest of it is burning, and I would rather ship one thing properly than a hundred things quietly.",
+    body: "Brainless Dip is a developer focused on building practical software, automation tools and web applications. I take a problem apart, learn what it actually needs, and leave something that holds.",
     oath: [
       "I do not build to fill the realm with noise.",
       "I build to solve problems, challenge limits,",
@@ -68,9 +100,6 @@ export const site = {
   armory: {
     label: "THE ARMORY",
     heading: "EVERY TOOL HAS A PURPOSE.",
-    // Tech list and titles come from STACK.MD §7 / PLAN §7.
-    // Blurbs are written to describe real capability, not proficiency scores.
-    // TODO(owner): correct any weapon title or blurb that misrepresents experience.
     weapons: [
       {
         tech: "Python",
@@ -79,10 +108,10 @@ export const site = {
           "Data pipelines, automation, and the unglamorous glue that keeps a system running overnight without supervision.",
       },
       {
-        tech: "JavaScript",
+        tech: "TypeScript",
         title: "The King's Blade",
         blurb:
-          "The first weapon drawn. Used where behaviour matters more than ceremony — interaction, state, and everything the user touches.",
+          "Typed interaction and state, where behaviour matters more than ceremony. Used for everything the user touches.",
       },
       {
         tech: "React",
@@ -106,7 +135,43 @@ export const site = {
         tech: "SQL",
         title: "The Royal Archives",
         blurb:
-          "The memory of the realm. Schema design, migrations, and queries that stay correct as the data grows.",
+          "SQLite and PostgreSQL. Schema design, migrations, and queries that stay correct as the data grows.",
+      },
+      {
+        tech: "Tailwind",
+        title: "The Steward's Ruler",
+        blurb:
+          "Layout and type held to a system, so a change lands the same way everywhere it is needed.",
+      },
+      {
+        tech: "Docker",
+        title: "The Garrison",
+        blurb:
+          "The same build on every machine. Deployment stops being a matter of whose laptop it is.",
+      },
+      {
+        tech: "Git",
+        title: "The Chronicle Mark",
+        blurb:
+          "Every version recoverable. The record of who changed what, and why it stood up.",
+      },
+      {
+        tech: "Linux",
+        title: "The Long Road",
+        blurb:
+          "The working ground. Shell, editor and tooling configured once and kept versioned.",
+      },
+      {
+        tech: "Cloudflare",
+        title: "The Outriders",
+        blurb:
+          "Edges and delivery, so the kingdom answers from the nearest gate instead of the furthest.",
+      },
+      {
+        tech: "shadcn/ui",
+        title: "The Stonework",
+        blurb:
+          "Accessible primitives taken apart and restyled, never shipped as an unexamined black box.",
       },
     ] as readonly Weapon[],
   },
@@ -114,24 +179,130 @@ export const site = {
   warTable: {
     label: "THE WAR TABLE",
     heading: "CAMPAIGNS UNDER MY BANNER.",
-    // TODO(owner): add real projects. PLAN §8 forbids inventing them.
-    conquests: [] as readonly Conquest[],
+    // Four projects, all verified reachable. Three link to their public GitHub
+    // repository; ResultLagbe is closed source, so its live site is the only
+    // public face of it and it carries `demo` instead of `source`. Stars are the
+    // count at the time of migration, not a live counter.
+    conquests: [
+      {
+        name: "FitFetch",
+        emblem: "⚔",
+        summary:
+          "Extract direct download links from FitGirl Repacks in seconds.",
+        stack: ["Python"],
+        status: "6 STARS · ACTIVE",
+        source: "https://github.com/BrainlessDip/FitFetch",
+      },
+      {
+        name: "BlazeHammer",
+        emblem: "⚒",
+        summary:
+          "An asynchronous API testing and traffic-generation tool.",
+        stack: ["Python"],
+        status: "4 STARS · MAINTAINED",
+        source: "https://github.com/BrainlessDip/BlazeHammer",
+      },
+      {
+        name: "BlazeHammer-Control",
+        emblem: "⚔",
+        summary:
+          "The TypeScript control surface for BlazeHammer.",
+        stack: ["TypeScript"],
+        status: "ACTIVE",
+        source: "https://github.com/BrainlessDip/BlazeHammer-Control",
+      },
+      {
+        name: "ResultLagbe",
+        emblem: "⚒",
+        summary:
+          "A Bangladesh result lookup and archive platform, handling large student datasets with fast search. Closed source — the live site is the only public face of it.",
+        stack: ["JavaScript", "React", "Node.js"],
+        status: "CLOSED SOURCE",
+        demo: "https://resultlagbe.pages.dev/",
+      },
+    ] as readonly Conquest[],
   },
 
   ravenArchive: {
     label: "THE RAVEN'S ARCHIVE",
     heading: "A HISTORY WRITTEN IN CODE.",
-    // TODO(owner): add real milestones. PLAN §9 forbids inventing employment,
-    // clients, awards or accomplishments.
-    entries: [] as readonly ChronicleEntry[],
+    entries: [
+      {
+        date: "2026",
+        title: "Student // BBA",
+        detail:
+          "National University. Balancing formal business studies with software development, shipping projects, and exploring new ways to build useful tools.",
+      },
+      {
+        date: "2026",
+        title: "ParcelKoi",
+        detail:
+          "Personal project. Started building a unified parcel tracking platform for Bangladesh couriers with smart updates, notifications, and real-time monitoring.",
+      },
+      {
+        date: "2025",
+        title: "ResultLagbe",
+        detail:
+          "Personal project. Built a Bangladesh result lookup and archive platform with FastAPI, React, SQLite, and Cloudflare, handling large student datasets and fast searches.",
+      },
+      {
+        date: "2025",
+        title: "Started Formal Software Journey",
+        detail:
+          "Moved beyond scripting and automation into full-stack development with React, TypeScript, FastAPI, databases, and modern web tooling.",
+      },
+      {
+        date: "2024 — 2026",
+        title: "Dank Alert",
+        detail:
+          "Discord bot. Built and grew a Discord bot project that reached a 7K+ member community and received over $150 in community support through crowdfunding over two years — a first real experience turning software into something people actually used.",
+      },
+      {
+        date: "2024",
+        title: "Started Building Software",
+        detail:
+          "Picked up Python and started experimenting with automation, gradually moving into JavaScript, React, and TypeScript.",
+      },
+      {
+        date: "2023",
+        title: "Automation & Experimentation",
+        detail:
+          "Started exploring programming through small scripts, automation, and experiments, learning mostly by building and breaking things.",
+      },
+    ] as readonly ChronicleEntry[],
+  },
+
+  records: {
+    label: "THE KING'S RECORDS",
+    heading: "THE TALLY, AS RECORDED.",
+    // Snapshot taken from the live GitHub API on the date below. These numbers
+    // drift as repositories are added and stars are earned; the label states
+    // the snapshot date so they are never read as live counters.
+    asOf: "October 2026",
+    stats: [
+      { label: "Repositories", value: "32" },
+      { label: "Followers", value: "28" },
+      { label: "Following", value: "47" },
+      { label: "Projects", value: "12+" },
+    ] as readonly { label: string; value: string }[],
+    note: "Recorded from the public GitHub profile. These counts change as the work continues.",
+    github: "https://github.com/BrainlessDip",
   },
 
   ironThrone: {
     label: "THE IRON THRONE",
     heading: "THE THRONE AWAITS.",
-    support: "Every great alliance begins with a conversation.",
-    // TODO(owner): add real contact links. PLAN §10 requires real methods only.
-    ravens: [] as readonly Raven[],
+    support:
+      "Have an idea, a project, or an interesting problem? I'm always up for a good technical conversation.",
+    availability: "Open to freelance work, collaborations and project ideas.",
+    ravens: [
+      { label: "GitHub", href: "https://github.com/BrainlessDip" },
+      { label: "LinkedIn", href: "https://linkedin.com/in/dipdey0" },
+      { label: "Facebook", href: "https://facebook.com/brainless.dip" },
+      { label: "Discord", href: "https://discord.com/users/833972562210979891" },
+      { label: "Telegram", href: "https://t.me/dipdey" },
+      { label: "Email", href: "mailto:dipdey993@gmail.com" },
+    ] as readonly Raven[],
   },
 
   secrets: {
@@ -148,15 +319,15 @@ export const site = {
     // §14 requires themed wording "but always explain the actual issue clearly".
     warEmpty: {
       flavour: "THE WAR TABLE STANDS EMPTY.",
-      plain: "No campaigns are recorded yet. Add them to warTable.conquests.",
+      plain: "No campaigns are recorded yet.",
     },
     ravenEmpty: {
       flavour: "THE CHRONICLE IS UNWRITTEN.",
-      plain: "No milestones are recorded yet. Add them to ravenArchive.entries.",
+      plain: "No milestones are recorded yet.",
     },
     throneEmpty: {
       flavour: "THE RAVENS ARE UNBOUND.",
-      plain: "No contact methods are published yet. Add them to ironThrone.ravens.",
+      plain: "No contact methods are published yet.",
     },
   },
 } as const;

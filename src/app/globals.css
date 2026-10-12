@@ -1,26 +1,345 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   BLOODTHRONE — design tokens
+   Contract: E:\Projects\BLOODTHRONE\DESIGN.md §2 (colour), §3 (type),
+   §4 (spacing), §6 (motion), §7 (atmosphere).
+   No raw hex is permitted outside this file.
+   ========================================================================== */
+
+@theme {
+  /* --- Blood ramp (OKLCH, hue 18-38) ------------------------------------- */
+  --color-blood-950: oklch(0.14 0.04 18);
+  --color-blood-900: oklch(0.2 0.065 18);
+  --color-blood-800: oklch(0.28 0.1 19);
+  --color-blood-700: oklch(0.3999 0.1641 29.2); /* SPEC ANCHOR = #8B0000 */
+  --color-blood-600: oklch(0.4927 0.1918 26.4); /* SPEC ANCHOR = #B5121B */
+  --color-blood-500: oklch(0.58 0.18 28);
+  --color-blood-300: oklch(0.72 0.105 30);
+  --color-blood-200: oklch(0.82 0.065 34);
+  --color-blood-100: oklch(0.9 0.035 38);
+
+  /* --- Steel ramp (OKLCH; chroma <= 0.01, so it reads as neutral grey) --- */
+  --color-steel-1000: oklch(0 0 0); /* pure black page ground */
+  --color-steel-950: oklch(0.173 0 90); /* SPEC ANCHOR = #101010 */
+  --color-steel-900: oklch(0.145 0.005 250);
+  --color-steel-850: oklch(0.185 0.006 250);
+  --color-steel-800: oklch(0.235 0.007 250); /* hairline borders     */
+  --color-steel-700: oklch(0.3 0.008 250);
+  --color-steel-600: oklch(0.4 0.009 250);
+  --color-steel-500: oklch(0.52 0.01 250);
+  --color-steel-400: oklch(0.64 0.009 250);
+  --color-steel-300: oklch(0.75 0.008 250); /* body text            */
+  --color-steel-200: oklch(0.9001 0.0208 81.8); /* SPEC ANCHOR = #E5DDCF */
+  --color-steel-100: oklch(0.94 0.005 250);
+
+  /* --- Type -------------------------------------------------------------- */
+  --font-display: var(--font-cinzel), "Times New Roman", serif;
+  --font-body: var(--font-spectral), Georgia, serif;
+
+  --text-display: clamp(2.25rem, 6.2vw, 5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: 0.01em;
+
+  --text-h2: clamp(2rem, 4.5vw, 3.5rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: 0.04em;
+
+  --text-h3: clamp(1.35rem, 2.2vw, 1.75rem);
+  --text-h3--line-height: 1.2;
+
+  --text-label: 0.72rem;
+  --text-label--line-height: 1;
+  --text-label--letter-spacing: 0.32em;
+
+  /* --- Spacing ----------------------------------------------------------- */
+  --spacing-section: clamp(5rem, 12vh, 9rem);
+
+  /* --- Motion ------------------------------------------------------------ */
+  --ease-blade: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-snap: 120ms;
+  --duration-cut: 320ms;
+  --duration-reveal: 900ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Elevation by tone + hairline + hard shadow. Never by blur. */
+@layer utilities {
+  .shadow-cut {
+    box-shadow:
+      0 0 0 1px var(--color-steel-800),
+      0 18px 40px -24px oklch(0 0 0 / 0.9);
+  }
+  .shadow-blade {
+    box-shadow:
+      0 0 0 1px var(--color-blood-800),
+      0 0 24px -6px oklch(0.4927 0.1918 26.4 / 0.35);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Medieval label: uppercase, wide tracking, muted steel. */
+  .label-herald {
+    font-family: var(--font-display);
+    font-size: var(--text-label);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .prose-throne {
+    max-width: 62ch;
+    line-height: 1.7;
+    color: var(--color-steel-300);
   }
 }
 
+/* ==========================================================================
+   Ground
+   ========================================================================== */
+
+/* No global `scroll-behavior: smooth`: it fights GSAP ScrollTrigger.
+   In-page jumps use scrollIntoView({ behavior }) at the call site instead. */
+html {
+  color-scheme: dark;
+  background-color: var(--color-steel-1000);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-steel-1000);
+  color: var(--color-steel-300);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-blood-700);
+  color: var(--color-steel-100);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blood-600);
+  outline-offset: 2px;
+}
+
+/* Hide the native cursor only where the sword actually mounts — the exact
+   condition useBladePointer resolves. Ungated, reduced-motion users and
+   pre-hydration visitors would be left with no pointer at all, since the
+   sword never mounts for them. `*` deliberately excludes pseudo-elements,
+   so they are listed or an `a::after { cursor }` rule would beat the
+   inherited `none`. `!important` outranks component-level `cursor-pointer`. */
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+}
+
+/* ==========================================================================
+   Atmosphere (DESIGN.md §7)
+   Static SVG overlays. Never a gradient. pointer-events:none so they can
+   never eat a click.
+   ========================================================================== */
+
+.tex-scratch {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg stroke='%23ffffff' stroke-opacity='0.5' stroke-width='0.6'%3E%3Cpath d='M-20 60 L240 12'/%3E%3Cpath d='M-20 148 L240 100'/%3E%3Cpath d='M-20 196 L240 148'/%3E%3Cpath d='M40 -20 L96 240'/%3E%3Cpath d='M150 -20 L206 240'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.tex-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* PLAN §13: weathered parchment, for selected sections only. */
+.tex-parchment {
+  background-color: oklch(0.24 0.018 78);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035 0.06' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+@keyframes forge-reveal {
+  from {
+    opacity: 0;
+    filter: brightness(2.4) contrast(0.35);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.sigil-forge {
+  animation: forge-reveal 1400ms var(--ease-blade) both;
+}
+
+/* Ash and embers: at most a handful, and never under reduced motion. */
+@keyframes drift-ash {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.7;
+  }
+  88% {
+    opacity: 0.5;
+  }
+  to {
+    transform: translate3d(-28px, -110vh, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ember {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes hint-fall {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.3;
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.9;
+    transform-origin: top;
+  }
+}
+
+.ash {
+  animation: drift-ash linear infinite;
+}
+
+.ember {
+  animation: pulse-ember ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Reduced motion (DESIGN.md §6, §8)
+   Content renders in its final state; nothing is hidden behind an
+   animation that may not run.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ash,
+  .ember {
+    display: none;
+  }
+}
+
+@theme inline {
+  --font-heading: var(--font-cinzel);
+  --font-sans: var(--font-spectral);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* shadcn semantics remapped onto the BLOODTHRONE ramp. The site is dark-only,
+   so these live in :root rather than a .dark block the markup never applies —
+   otherwise a dialog would render white-on-black by default. Mapping the
+   tokens (not overriding component classes) means every shadcn primitive
+   inherits the medieval palette structurally. */
+:root {
+  --background: var(--color-steel-1000);
+  --foreground: var(--color-steel-200);
+  --card: var(--color-steel-950);
+  --card-foreground: var(--color-steel-200);
+  --popover: var(--color-steel-950);
+  --popover-foreground: var(--color-steel-200);
+  --primary: var(--color-blood-700);
+  --primary-foreground: var(--color-steel-100);
+  --secondary: var(--color-steel-900);
+  --secondary-foreground: var(--color-steel-200);
+  --muted: var(--color-steel-900);
+  --muted-foreground: var(--color-steel-400);
+  --accent: var(--color-steel-850);
+  --accent-foreground: var(--color-steel-200);
+  --destructive: var(--color-blood-600);
+  --border: var(--color-steel-800);
+  --input: var(--color-steel-800);
+  --ring: var(--color-blood-600);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  /* PLAN §20 forbids rounded cards and pill buttons. Zeroing the shadcn base
+     radius makes every shadcn primitive inherit sharp corners structurally,
+     rather than each component needing an override. */
+  --radius: 0rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

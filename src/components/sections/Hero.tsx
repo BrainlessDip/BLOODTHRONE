@@ -1,15 +1,37 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { SigilSecret } from "@/components/sigil/SigilSecret";
 import { SentenceOfDeath } from "@/components/animations/SentenceOfDeath";
+import { useBladePointer } from "@/hooks/useBladePointer";
 import { site } from "@/data/site";
 
+const BLADE_HINT_KEY = "bt:blade-hint";
+
+/**
+ * First-arrival caption for the sword cursor. It teaches a mechanic that only
+ * exists where the sword mounts, so it is gated on the exact same hook
+ * SwordCursor uses: a touch device or a reduced-motion visitor has no blade to
+ * point at and never renders this at all.
+ *
+ * `first` is read during render, but only the `bladed &&` half can differ
+ * between server and client render (the hook starts false on both), so the
+ * hydration output still matches and there is no flash of the caption.
+ */
 export function Hero() {
   const rootRef = useRef<HTMLElement>(null);
+  const bladed = useBladePointer();
+  const [first] = useState(() =>
+    typeof window === "undefined"
+      ? false
+      : sessionStorage.getItem(BLADE_HINT_KEY) !== "1",
+  );
 
   useLayoutEffect(() => {
+    if (!bladed) return;
+    sessionStorage.setItem(BLADE_HINT_KEY, "1");
+
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -32,11 +54,46 @@ export function Hero() {
             { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power2.out" },
             0.8,
           );
+
+        /* The caption arrives once the hero has settled, holds long enough to
+           be read, then withdraws for good. Only the tip brightens, and only by
+           opacity — no glow, no scale, nothing the blade itself has to fight
+           for.
+
+           Skipped entirely when the caption isn't in the DOM (a returning
+           visitor, or a device with no sword): tweening a selector that matches
+           nothing is a no-op that logs a warning on every load. */
+        if (first) {
+          gsap
+            .timeline({ delay: 2 })
+            .fromTo(
+              "[data-blade-hint]",
+              { opacity: 0, y: 8 },
+              { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
+            )
+            .fromTo(
+              "[data-blade-tip]",
+              { opacity: 0.3 },
+              {
+                opacity: 1,
+                duration: 1.2,
+                repeat: 1,
+                yoyo: true,
+                ease: "sine.inOut",
+              },
+              "+=0.15",
+            )
+            .to(
+              "[data-blade-hint]",
+              { opacity: 0, duration: 1.3, ease: "power2.in" },
+              "+=5",
+            );
+        }
       });
       return () => mm.revert();
     }, rootRef);
     return () => ctx.revert();
-  }, []);
+  }, [bladed, first]);
 
   return (
     <section
@@ -120,6 +177,41 @@ export function Hero() {
             </SentenceOfDeath>
           ))}
         </div>
+
+        {bladed && first && (
+          <p
+            data-blade-hint
+            className="pointer-events-none mt-1 flex items-center gap-3 font-body text-[0.78rem] leading-relaxed tracking-[0.05em] text-balance text-steel-300"
+          >
+            {/* A still reduction of the cursor's blade, tip up: the same shape
+                the visitor is about to be steering, so the word "tip" has
+                something to point at. Decorative only. */}
+            <svg
+              width="9"
+              height="22"
+              viewBox="0 0 34 58"
+              fill="none"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <path
+                data-blade-tip
+                fill="var(--color-blood-500)"
+                d="M17 0L20 14H14Z"
+              />
+              <path
+                fill="oklch(0.78 0.008 250)"
+                d="M14 14H20V38L17 46L14 38Z"
+              />
+              <path
+                d="M9 40H25"
+                stroke="oklch(0.64 0.009 250)"
+                strokeWidth="2.5"
+              />
+            </svg>
+            <span>{site.hero.bladeHint}</span>
+          </p>
+        )}
       </div>
 
       <div

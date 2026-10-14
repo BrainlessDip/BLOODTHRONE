@@ -65,6 +65,11 @@ export const site = {
       { label: "VIEW MY CONQUESTS", href: "#war-table", primary: false },
     ],
     scrollHint: "SCROLL",
+    // Teaches the sword cursor. Only ever rendered where the sword itself
+    // mounts (fine pointer, motion allowed) and only on a visitor's first
+    // arrival, so it can never linger as clutter or address a cursor that
+    // isn't there. See Hero.tsx.
+    bladeHint: "THE TIP OF THE SWORD IS ITS DEADLIEST POINT.",
   },
 
   /** Verified against the GitHub API and the reference portfolio. */

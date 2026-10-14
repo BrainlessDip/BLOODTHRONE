@@ -319,6 +319,15 @@ export const site = {
       "You looked behind the banner. Most who enter the kingdom never do.",
   },
 
+  /** Static 404. Exported to out/404.html, which Cloudflare Pages serves for
+      any URL that isn't a file it holds. */
+  notFound: {
+    label: "LOST IN THE DUNGEONS",
+    heading: "THIS HALL DOES NOT EXIST.",
+    body: "The path you followed leads nowhere. It was mistyped, or the page has been sealed away. The gates of the kingdom are still open.",
+    action: "RETURN TO THE KINGDOM",
+  },
+
   ledger: {
     // PLAN §14. Every entry pairs themed flavour with the plain fact, because
     // §14 requires themed wording "but always explain the actual issue clearly".
